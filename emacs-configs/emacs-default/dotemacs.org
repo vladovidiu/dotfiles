@@ -272,8 +272,7 @@ General
 	"cc" '(vt/open-config-file :which-key "open config")
 	"t" '(:ignore t :which-key "toggles")
 	"tl" '(vt/toggle-line-numbers :which-key "line numbers")
-	"tc" '(vt/toggle-company-mode :which-key "company mode")
-	"tt" '(counsel-load-theme :which-key "choose theme")))
+	"tc" '(vt/toggle-company-mode :which-key "company mode")))
 
 #+END_SRC
 
@@ -296,55 +295,6 @@ Hydra
 #+END_SRC
 
 * Packages
-** Ivy
-[[https://oremacs.com/swiper/][Ivy]] is an excellent completion framework for Emacs.  It provides a minimal yet powerful selection menu that appears when you open files, switch buffers, and for many other tasks in Emacs.  Counsel is a customized set of commands to replace `find-file` with `counsel-find-file`, etc which provide useful commands for each of the default completion commands.
-#+BEGIN_SRC emacs-lisp
-
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-#+END_SRC
-
-** Counsel
-#+BEGIN_SRC emacs-lisp
-
-(use-package counsel
-  :demand t
-  :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :config
-  (counsel-mode 1))
-
-#+END_SRC
-
-** Smex
-[[https://github.com/nonsequitur/smex/][smex]]  is a M-x enhancement for Emacs. Built on top of Ido, it provides a convenient interface to your recently and most frequently used commands. And to all the other commands, too.
-#+begin_src emacs-lisp
-
-(use-package smex
-  :defer 1
-  :after counsel)
-
-#+end_src
-
 ** Doom modeline
 [[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs.  The default configuration is quite good but you can check out the [[https://github.com/seagle0128/doom-modeline#customize][configuration options]] for more things you can enable or disable.
 
@@ -451,34 +401,6 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 #+END_SRC
 
-** Ivy Rich
-#+BEGIN_SRC emacs-lisp
-
-(use-package ivy-rich
-  :after ivy
-  :init
-  (ivy-rich-mode 1))
-
-#+END_SRC
-
-** Ivy Precient
-prescient.el provides some helpful behavior for sorting Ivy completion candidates based on how recently or frequently you select them.  This can be especially helpful when using =M-x= to run commands that you don't have bound to a key but still need to access occasionally.
-
-This Prescient configuration is optimized for use in System Crafters videos and streams, check out the [[https://youtu.be/T9kygXveEz0][video on prescient.el]] for more details on how to configure it!
-
-#+begin_src emacs-lisp
-
-(use-package ivy-prescient
-  :after counsel
-  :custom
-  (ivy-prescient-enable-filtering nil)
-  :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
-
-#+end_src
-
 ** Projectile
 #+BEGIN_SRC emacs-lisp
 
@@ -486,17 +408,12 @@ This Prescient configuration is optimized for use in System Crafters videos and 
   :diminish projectile-mode
   :config (projectile-mode)
   :demand t
-  :custom ((projectile-completion-system 'ivy))
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :init
   (when (file-directory-p "~/code")
     (setq projectile-project-search-path '("~/code")))
   (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :after projectile
-  :config (counsel-projectile-mode))
 
 #+END_SRC
 
@@ -804,7 +721,6 @@ The downsides to Eshell are that it can be harder to configure than other packag
 - =C-c C-p= / =C-c C-n= - go back and forward in the buffer's prompts (also =[[= and =]]= with evil-mode)
 - =M-p= / =M-n= - go back and forward in the input history
 - =C-c C-u= - delete the current input string backwards up to the cursor
-- =counsel-esh-history= - A searchable history of commands typed into Eshell
 
 We will be covering Eshell more in future videos highlighting other things you can do with it.
 
@@ -822,7 +738,6 @@ For more thoughts on Eshell, check out these articles by Pierre Neidhardt:
   (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
 
   ;; Bind some useful keys for evil-mode
-  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
   (evil-define-key '(normal insert visual) eshell-mode-map (kbd "<home>") 'eshell-bol)
   (evil-normalize-keymaps)
 
@@ -978,139 +893,6 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'bottom))
-
-#+end_src
-
-*** lsp-ivy
-[[https://github.com/emacs-lsp/lsp-ivy][lsp-ivy]] integrates Ivy with =lsp-mode= to make it easy to search for things by name in your code.  When you run these commands, a prompt will appear in the minibuffer allowing you to type part of the name of a symbol in your code.  Results will be populated in the minibuffer so that you can find what you're looking for and jump to that location in the code upon selecting the result.
-
-Try these commands with =M-x=:
-
-- =lsp-ivy-workspace-symbol= - Search for a symbol name in the current project workspace
-- =lsp-ivy-global-workspace-symbol= - Search for a symbol name in all active project workspaces
-  
-#+begin_src emacs-lisp
-
-(use-package lsp-ivy
-  :after lsp)
-
-#+end_src
-** Editorconfig
-#+begin_src emacs-lisp
-
-(use-package editorconfig
-  :init (editorconfig-mode 1))
-
-#+end_src
-
-** Autocomplete
-[[http://company-mode.github.io/][Company Mode]] provides a nicer in-buffer completion interface than =completion-at-point= which is more reminiscent of what you would expect from an IDE.  We add a simple configuration to make the keybindings a little more useful (=TAB= now completes the selection and initiates completion at the current location if needed).
-
-We also use [[https://github.com/sebastiencs/company-box][company-box]] to further enhance the look of the completions with icons and better overall presentation.
-
-#+begin_src emacs-lisp
-
-(use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  ;; :init (add-hook 'after-init-hook 'global-company-mode)
-  :bind (:map company-active-map
-			  ("<tab>" . company-complete-selection))
-  (:map lsp-mode-map
-		("<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
-
-(use-package company-box
-  :after company
-  :hook (company-mode . company-box-mode))
-
-#+end_src
-
-** Debugging
-[[https://emacs-lsp.github.io/dap-mode/][dap-mode]] is an excellent package for bringing rich debugging capabilities to Emacs via the [[https://microsoft.github.io/debug-adapter-protocol/][Debug Adapter Protocol]].  You should check out the [[https://emacs-lsp.github.io/dap-mode/page/configuration/][configuration docs]] to learn how to configure the debugger for your language.  Also make sure to check out the documentation for the debug adapter to see what configuration parameters are available to use for your debug templates!
-
-#+begin_src emacs-lisp
-
-(use-package dap-mode
-  ;; Uncomment the config below if you want all UI panes to be hidden by default!
-  ;; :custom
-  ;; (lsp-enable-dap-auto-configure nil)
-  ;; :config
-  ;; (dap-ui-mode 1)
-
-  :commands dap-debug
-  :config
-  ;; Set up Node debugging
-  (require 'dap-node)
-  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
-
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  (general-define-key
-   :keymaps 'lsp-mode-map
-   :prefix lsp-keymap-prefix
-   "d" '(dap-hydra t :wk "debugger")))
-
-#+end_src
-** Languages
-*** TypeScript
-This is a basic configuration for the TypeScript language so that =.ts or .tsx= files activate =typescript-mode= when opened.  We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
-
-#+begin_src emacs-lisp
-
-(use-package typescript-mode
-  :mode "\\.tsx?\\'"
-  :hook (typescript-mode . lsp-deferred)
-  :config
-  (setq typescript-indent-level 2))
-
-#+end_src
-
-*** JavaScript
-Inspired from Doom Emacs
-
-#+begin_src emacs-lisp
-
-(use-package js2-mode
-  :mode "\\.[mc]?js\\'"
-  :mode "\\.es6\\'"
-  :interpreter "node"
-  :commands js2-line-break
-  :config
-  (setq js-chain-indent t
-		;; Don't mishighlight shebang lines
-		js2-skip-preprocessor-directives t
-		;; let flycheck handle this
-		js2-mode-show-parse-errors nil
-		js2-mode-show-strict-warnings nil
-		;; Flycheck provides these features, so disable them: conflicting with
-		;; the eslint settings.
-		js2-strict-trailing-comma-warning nil
-		js2-strict-missing-semi-warning nil
-		;; maximum fontification
-		js2-highlight-level 3
-		js2-highlight-external-variables t
-		js2-idle-timer-delay 0.1)
-
-  (add-hook 'js2-mode-hook #'rainbow-delimiters-mode)
-  ;; Indent switch-case another step
-  (setq mode-name "JS2"))
-
-#+end_src
-
-** Treesitter
-The minor mode tree-sitter-mode provides a buffer-local syntax tree, which is kept up-to-date with changes to the buffer’s text.
-
-#+begin_src emacs-lisp
-
-(use-package tree-sitter
-  :after evil
-  :init (global-tree-sitter-mode)
-  :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode))
-
-(use-package tree-sitter-langs
-  :after evil)
 
 #+end_src
 
