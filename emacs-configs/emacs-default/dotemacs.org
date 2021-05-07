@@ -272,7 +272,8 @@ General
 	"cc" '(vt/open-config-file :which-key "open config")
 	"t" '(:ignore t :which-key "toggles")
 	"tl" '(vt/toggle-line-numbers :which-key "line numbers")
-	"tc" '(vt/toggle-company-mode :which-key "company mode")))
+	"tc" '(vt/toggle-company-mode :which-key "company mode")
+	"tt" '(counsel-load-theme :which-key "choose theme")))
 
 #+END_SRC
 
@@ -295,6 +296,123 @@ Hydra
 #+END_SRC
 
 * Packages
+** Selectrum
+The focus of [[https://github.com/raxod502/selectrum][Selectrum]] is on providing an enhanced completion UI and compose with other packages which stay within the constraints of the standard Emacs API. Because of the modular approach there are several possible package combinations.
+
+#+begin_src emacs-lisp
+
+(use-package selectrum
+  :straight t
+  :config
+  (selectrum-mode +1)
+  :custom
+  (selectrum-extend-current-candidate-highlight t)
+  (selectrum-fix-vertical-window-height t))
+
+#+end_src
+
+** Selectrum Prescient
+[[https://github.com/raxod502/prescient.el][prescient.el]] is a library which sorts and filters lists of candidates, such as appear when you use a package like Ivy or Company. Extension packages such as ivy-prescient.el and company-prescient.el adapt the library for usage with various frameworks.
+
+#+begin_src emacs-lisp
+
+(use-package selectrum-prescient
+  :after selectrum
+  :init
+  (selectrum-prescient-mode +1)
+  (prescient-persist-mode +1))
+
+#+end_src
+
+** Consult
+[[https://github.com/minad/consult][consult]] provides various practical commands based on the Emacs completion function completing-read, which allows to quickly select an item from a list of candidates with completion.
+
+#+begin_src emacs-lisp
+
+(use-package consult
+  :straight t
+  :bind (([remap list-buffers] . consult-buffer) 
+		 ("C-c h" . consult-history)
+		 ("C-c m" . consult-mode-command)
+		 ("C-c b" . consult-bookmark)
+		 ("C-s" . consult-line)
+		 ("C-x b" . consult-buffer)
+		 ("M-y" . consult-yank-pop)
+		 ("M-g g" . consult-goto-line)
+		 ("M-g M-g" . consult-goto-line)
+		 ("M-g o" . consult-outline)
+		 ("M-g i" . consult-imenu)
+		 ("M-g I" . consult-project-imenu)
+		 ("M-s f" . consult-find)
+		 ("M-s L" . consult-locate)
+		 ("M-s G" . consult-git-grep)
+		 ("M-s r" . consult-ripgrep)
+		 ("M-s l" . consult-line)
+		 ("M-s e" . consult-isearch)
+		 :map isearch-mode-map
+		 ("M-e" . consult-isearch)
+		 ("M-s e" . consult-isearch)
+		 ("M-s l" . consult-line))
+  :init
+  (setq xref-show-xrefs-function #'consult-xref
+		xref-show-definitions-function #'consult-xref)
+  :config
+  (autoload 'projectile-project-root "projectile")
+  (setq consult-project-root-function #'projectile-project-root))
+
+#+end_src
+
+** Orderless
+This package provides an [[https://github.com/oantolin/orderless][orderless]] completion style that divides the pattern into space-separated components, and matches candidates that match all of the components in any order
+
+#+begin_src emacs-lisp
+
+(use-package orderless
+  :straight t
+  :init
+  (setq completion-styles '(orderless)
+		completion-category-defaults nil
+		completion-category-overrides '((file (styles . (partial-completion))))))
+
+#+end_src
+
+** Embark
+This package provides a sort of right-click contextual menu for Emacs, accessed through the [[https://github.com/oantolin/embark/][embark]]-act command (which you should bind to a convenient key), offering you relevant actions to use on a target determined by the context:
+
++ In the minibuffer, the target is the current best completion candidate.
++ In the *Completions* buffer the target is the completion at point.
++ In a regular buffer, the target is the region if active, or else the file, symbol or URL at point.
+
+#+begin_src emacs-lisp
+
+(use-package embark
+  :straight t
+  :bind
+  (("C-S-a" . embark-act)	  ;; pick some comfortable binding
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command))
+
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :demand t
+  :hook
+  (embark-collect-mode . embark-consult-preview-minor-mode))
+
+#+end_src
+
+** Marginalia
+ [[https://github.com/minad/marginalia][Marginalia]] are marks or annotations placed at the margin of the page of a book or in this case helpful colorful annotations placed at the margin of the minibuffer for your completion candidates.
+
+#+begin_src emacs-lisp
+
+(use-package marginalia
+  :init
+  (marginalia-mode))
+
+#+end_src
+
 ** Doom modeline
 [[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs.  The default configuration is quite good but you can check out the [[https://github.com/seagle0128/doom-modeline#customize][configuration options]] for more things you can enable or disable.
 
@@ -379,16 +497,14 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 ** Helpful
 [[https://github.com/Wilfred/helpful][Helpful]] adds a lot of very helpful (get it?) information to Emacs' =describe-= command buffers.  For example, if you use =describe-function=, you will not only get the documentation about the function, you will also see the source code of the function and where it gets used in other places in the Emacs configuration.  It is very useful for figuring out how things work in Emacs.
+
 #+BEGIN_SRC emacs-lisp
 
 (use-package helpful
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
   :bind
-  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-variable] . helpful-variable)
   ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
 #+END_SRC
@@ -893,6 +1009,83 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   :hook (lsp-mode . lsp-ui-mode)
   :custom
   (lsp-ui-doc-position 'bottom))
+
+#+end_src
+
+*** Autocomplete
+[[https://github.com/minad/corfu][Corfu]] enhances the default completion in region function with a completion overlay. The current candidates are shown in a popup below or above the point. Corfu can be considered the minimalistic completion-in-region counterpart of the Vertico minibuffer UI.
+
+#+begin_src emacs-lisp
+
+(use-package corfu
+  :bind (:map corfu-map
+			  ("TAB" . corfu-next)
+			  ("S-TAB" . corfu-previous))
+  :custom
+  (corfu-cycle t)
+  :config
+  (corfu-global-mode))
+
+#+end_src
+
+*** Tree Sitter
+The minor mode tree-sitter-mode provides a buffer-local syntax tree, which is kept up-to-date with changes to the buffer’s text.
+
+#+begin_src emacs-lisp
+
+(use-package tree-sitter
+  :after evil
+  :init (global-tree-sitter-mode)
+  :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs
+  :after evil)
+
+#+end_src
+
+** Languages
+*** TypeScript
+This is a basic configuration for the TypeScript language so that =.ts or .tsx= files activate =typescript-mode= when opened. We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
+
+#+begin_src emacs-lisp
+
+(use-package typescript-mode
+  :mode "\\.tsx?\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+#+end_src
+
+*** JavaScript
+Inspired from Doom Emacs
+
+#+begin_src emacs-lisp
+
+(use-package js2-mode
+  :mode "\\.[mc]?js\\'"
+  :mode "\\.es6\\'"
+  :interpreter "node"
+  :commands js2-line-break
+  :config
+  (setq js-chain-indent t
+		;; Don't mishighlight shebang lines
+		js2-skip-preprocessor-directives t
+		;; let flycheck handle this
+		js2-mode-show-parse-errors nil
+		js2-mode-show-strict-warnings nil
+		;; Flycheck provides these features, so disable them: conflicting with
+		;; the eslint settings.
+		js2-strict-trailing-comma-warning nil
+		js2-strict-missing-semi-warning nil
+		;; maximum fontification
+		js2-highlight-level 3
+		js2-highlight-external-variables t
+		js2-idle-timer-delay 0.1)
+
+  (add-hook 'js2-mode-hook #'rainbow-delimiters-mode)
+  ;; Indent switch-case another step
+  (setq mode-name "JS2"))
 
 #+end_src
 
