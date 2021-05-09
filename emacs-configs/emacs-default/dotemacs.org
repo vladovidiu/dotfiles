@@ -204,11 +204,12 @@ All the icons
 #+END_SRC
 
 Theme
-[[https://github.com/hlissner/emacs-doom-themes][doom-themes]] is a great set of themes with a lot of variety and support for many different Emacs modes.  Taking a look at the [[https://github.com/hlissner/emacs-doom-themes/tree/screenshots][screenshots]] might help you decide which one you like best.  You can also run =M-x counsel-load-theme= to choose between them easily.
+[[https://github.com/hlissner/emacs-doom-themes][doom-themes]] is a great set of themes with a lot of variety and support for many different Emacs modes.  Taking a look at the [[https://github.com/hlissner/emacs-doom-themes/tree/screenshots][screenshots]] might help you decide which one you like best.  You can also run =M-x consult-theme= to choose between them easily.
 #+BEGIN_SRC emacs-lisp
 
 (use-package doom-themes
-  :init (load-theme 'doom-dracula t)
+  ;; :init (load-theme 'doom-palenight t)
+  :init (load-theme 'modus-vivendi t)
   (doom-themes-visual-bell-config))
 
 #+END_SRC
@@ -222,11 +223,13 @@ Functions to toggle various settings
 #+begin_src emacs-lisp
 
 (defun vt/toggle-line-numbers ()
+  "Toggle line numbers in buffer"
   (interactive)
   (setq display-line-numbers
 		(not (bound-and-true-p display-line-numbers))))
 
 (defun vt/toggle-company-mode ()
+  "Toggle company mode in buffer"
   (interactive)
   (if (bound-and-true-p company-mode)
 	  (company-mode -1)
@@ -260,20 +263,19 @@ General
 #+BEGIN_SRC emacs-lisp
 
 (use-package general
-  :after evil
   :config
   (general-create-definer vt/leader-keys
-	:keymaps '(normal insert visual emacs)
-	:prefix "SPC"
-	:global-prefix "C-SPC")
+    :keymaps '(normal insert visual emacs)
+    :prefix "SPC"
+    :global-prefix "C-SPC")
 
   (vt/leader-keys
-	"c" '(:ignore t :which-key "config")
-	"cc" '(vt/open-config-file :which-key "open config")
-	"t" '(:ignore t :which-key "toggles")
-	"tl" '(vt/toggle-line-numbers :which-key "line numbers")
-	"tc" '(vt/toggle-company-mode :which-key "company mode")
-	"tt" '(counsel-load-theme :which-key "choose theme")))
+   "c" '(:ignore t :which-key "config")
+   "cc" '(vt/open-config-file :which-key "open config")
+   "t" '(:ignore t :which-key "toggles")
+   "tl" '(vt/toggle-line-numbers :which-key "line numbers")
+   "tc" '(vt/toggle-company-mode :which-key "company mode")
+   "tt" '(consult-theme :which-key "choose theme")))
 
 #+END_SRC
 
@@ -283,17 +285,36 @@ Hydra
 (use-package hydra
   :defer t)
 
-(defhydra hydra-text-scale (:timeout 4)
-  "scale text"
-  ("j" text-scale-increase "in")
-  ("k" text-scale-decrease "out")
-  ("f" nil "finished" :exit t))
+(use-package pretty-hydra
+  :straight t)
 
-(with-eval-after-load 'evil
-    (vt/leader-keys
-     "ts" '(hydra-text-scale/body :which-key "scale text")))
+(pretty-hydra-define vt/hydra-text-scale
+  (:title "Increase/decrease text size"
+		  :quit-key "q"
+		  :timeout 4)
+  ("Scale text"
+   (("j" text-scale-increase "in")
+	("k" text-scale-decrease "out")
+	("f" nil "finished" :exit t))))
+
+(vt/leader-keys
+  "ts" '(vt/hydra-text-scale/body :which-key "scale text"))
 
 #+END_SRC
+
+** Control buffer placement
+
+#+begin_src emacs-lisp
+
+(setq display-buffer-base-action
+	  '(display-buffer-reuse-mode-window
+		display-buffer-reuse-window
+		display-buffer-same-window))
+
+;; If a popup does happen, don't resize windows to be equal-sized
+(setq even-window-sizes nil)
+
+#+end_src
 
 * Packages
 ** Selectrum
@@ -303,6 +324,7 @@ The focus of [[https://github.com/raxod502/selectrum][Selectrum]] is on providin
 
 (use-package selectrum
   :straight t
+  :disabled t
   :config
   (selectrum-mode +1)
   :custom
@@ -318,9 +340,36 @@ The focus of [[https://github.com/raxod502/selectrum][Selectrum]] is on providin
 
 (use-package selectrum-prescient
   :after selectrum
+  :disabled t
   :init
   (selectrum-prescient-mode +1)
   (prescient-persist-mode +1))
+
+#+end_src
+
+** Vertico
+[[https://github.com/minad/vertico][Vertico]] provides a minimalistic vertical completion UI, which is based on the default completion system. By reusing the default system, Vertico achieves full compatibility with built-in Emacs commands and completion tables.
+
+#+begin_src emacs-lisp
+
+(use-package vertico
+  :straight '(vertico :host github
+					  :repo "minad/vertico"
+					  :branch "main")
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
+
+#+end_src
+
+** Save Hist
+#+begin_src emacs-lisp
+
+(use-package savehist
+  :config
+  (setq history-length 25)
+  (savehist-mode 1))
 
 #+end_src
 
@@ -331,7 +380,7 @@ The focus of [[https://github.com/raxod502/selectrum][Selectrum]] is on providin
 
 (use-package consult
   :straight t
-  :bind (([remap list-buffers] . consult-buffer) 
+  :bind (([remap list-buffers] . consult-buffer)
 		 ("C-c h" . consult-history)
 		 ("C-c m" . consult-mode-command)
 		 ("C-c b" . consult-bookmark)
@@ -359,6 +408,15 @@ The focus of [[https://github.com/raxod502/selectrum][Selectrum]] is on providin
   :config
   (autoload 'projectile-project-root "projectile")
   (setq consult-project-root-function #'projectile-project-root))
+
+(use-package consult-flycheck
+  :bind (:map flycheck-command-map
+			  ("!" . consult-flycheck)))
+
+(vt/leader-keys
+  "b" '(:ignore t :which-key "buffer")
+  "bb" '(consult-buffer :which-key "list buffers")
+  "bs" '(save-buffer :which-key "save buffer"))
 
 #+end_src
 
@@ -408,6 +466,10 @@ This package provides a sort of right-click contextual menu for Emacs, accessed 
 #+begin_src emacs-lisp
 
 (use-package marginalia
+  :after vertico
+  :straight t
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :init
   (marginalia-mode))
 
@@ -531,6 +593,12 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
     (setq projectile-project-search-path '("~/code")))
   (setq projectile-switch-project-action #'projectile-dired))
 
+(vt/leader-keys
+  "p" '(:ignore t :which-key "projectile")
+  "pp" '(projectile-switch-project :which-key "switch project")
+  "pf" '(project-find-file :which-key "find project file")
+  "sp" '(consult-ripgrep :which-key "search in project"))
+
 #+END_SRC
 
 ** Magit
@@ -540,6 +608,12 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
   :commands (magit-status magit-get-current-branch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+
+(vt/leader-keys
+  "g" '(:ignore t :which-key "magit")
+  "gs" '(magit-status :which-key "magit status")
+  "gb" '(magit-blame :which-key "magit blame"))
 
 #+END_SRC
 
@@ -572,7 +646,7 @@ Font faces
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Overpass" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "Iosevka Aile" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
@@ -728,7 +802,18 @@ Org mode configuration
 
 (use-package visual-fill-column
   :hook (org-mode . vt/org-mode-visual-fill))
+
 #+END_SRC
+
+** Org Appear
+This package makes it much easier to edit Org documents when org-hide-emphasis-markers is turned on. It temporarily shows the emphasis markers around certain markup elements when you place your cursor inside of them. No more fumbling around with = and * characters! 
+
+#+begin_src emacs-lisp
+
+(use-package org-appear
+  :hook (org-mode . org-appear-mode))
+
+#+end_src
 
 ** Dired 
 Dired is a built-in file manager for Emacs that does some pretty amazing things!  Here are some key bindings you should try out:
@@ -818,6 +903,10 @@ Dired is a built-in file manager for Emacs that does some pretty amazing things!
   ;;(add-to-list 'dired-open-functions #'dired-open-xdg t)
   (setq dired-open-extensions '(("png" . "feh")
                                 ("mkv" . "mpv"))))
+
+(vt/leader-keys
+  "d" '(:ignore t :which-key "dired")
+  "dj" '(dired-jump :which-key "jump to folder"))
 
 ;; (use-package dired-hide-dotfiles
 ;;   :hook (dired-mode . dired-hide-dotfiles-mode)
@@ -939,6 +1028,46 @@ Here are packages that are useful across different Lisp and Scheme implementatio
 
 #+end_src
 
+** Avy
+[[https://github.com/abo-abo/avy][avy]] is a GNU Emacs package for jumping to visible text using a char-based decision tree.
+
+#+begin_src emacs-lisp
+
+(use-package avy
+  :commands (avy-goto-char avy-goto-word-0 avy-goto-line))
+
+(vt/leader-keys
+  "j" '(:ignore t :which-key "jump")
+  "jj" '(avy-goto-char :which-key "jump to char")
+  "jw" '(avy-goto-word-0 :which-key "jump to word")
+  "jl" '(avy-goto-line :which-key "jump to line"))
+
+#+end_src
+
+** Dashboard
+An extensible emacs startup screen showing you what’s most important.
+
+#+begin_src emacs-lisp
+
+(use-package dashboard
+  :disabled t
+  :init
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-banner-logo-title "Welcome Vlad!")
+  (setq dashboard-center-content nil)
+  (setq dashboard-items '((recents . 5)
+						  (agenda . 5)
+						  (bookmarks . 3)
+						  (projects . 3)
+						  (registers . 3)))
+  :config
+  (dashboard-setup-startup-hook))
+
+;; (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+
+#+end_src
+
 * Utilities
 Setup org babel
 
@@ -975,6 +1104,7 @@ Auto tangle  config file
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'vt/org-babel-tangle-config)))
+
 #+end_src
 
 * Development
@@ -1021,8 +1151,6 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   :bind (:map corfu-map
 			  ("TAB" . corfu-next)
 			  ("S-TAB" . corfu-previous))
-  :custom
-  (corfu-cycle t)
   :config
   (corfu-global-mode))
 
@@ -1039,8 +1167,27 @@ The minor mode tree-sitter-mode provides a buffer-local syntax tree, which is ke
   :hook (tree-sitter-after-on-hook . tree-sitter-hl-mode))
 
 (use-package tree-sitter-langs
-  :after evil)
+  :after evil tree-sitter
+  :config
+  (tree-sitter-require 'tsx)
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx)))
 
+#+end_src
+
+*** Flycheck
+Syntax checking with Flycheck
+
+#+begin_src emacs-lisp
+
+(use-package flycheck
+  :after lsp
+  :hook (lsp-mode . flycheck-mode))
+
+(vt/leader-keys
+  "c" '(:ignore t :which-key "code")
+  "ca" '(lsp-execute-code-action :which-key "code action")
+  "cx" '(consult-flycheck :which-key "flycheck info"))
+ 
 #+end_src
 
 ** Languages
@@ -1050,8 +1197,9 @@ This is a basic configuration for the TypeScript language so that =.ts or .tsx= 
 #+begin_src emacs-lisp
 
 (use-package typescript-mode
-  :mode "\\.tsx?\\'"
-  :hook (typescript-mode . lsp-deferred)
+  :hook ((typescript-mode . lsp-deferred)
+		 (typescript-mode . rainbow-delimiters-mode)
+		 (typescript-mode . tree-sitter-hl-mode))
   :config
   (setq typescript-indent-level 2))
 
@@ -1061,6 +1209,11 @@ This is a basic configuration for the TypeScript language so that =.ts or .tsx= 
 Inspired from Doom Emacs
 
 #+begin_src emacs-lisp
+
+(defun vt/set-js-indentation ()
+  (setq js-indent-level 2)
+  (setq evil-shift-width js-indent-level)
+  (setq-default tab-width 2))
 
 (use-package js2-mode
   :mode "\\.[mc]?js\\'"
@@ -1084,8 +1237,40 @@ Inspired from Doom Emacs
 		js2-idle-timer-delay 0.1)
 
   (add-hook 'js2-mode-hook #'rainbow-delimiters-mode)
-  ;; Indent switch-case another step
-  (setq mode-name "JS2"))
+  (add-hook 'js2-mode-hook #'vt/set-js-indentation))
+
+(use-package apheleia
+  :config
+  (apheleia-global-mode 1))
+
+(use-package prettier-js
+  ;; :hook ((js2-mode . prettier-js-mode)
+  ;;        (typescript-mode . prettier-js-mode))
+  :config
+  (setq prettier-js-show-errors nil))
+
+
+#+end_src
+
+*** Typescript-tsx
+#+begin_src emacs-lisp
+
+    (progn
+	  (define-derived-mode typescript-tsx-mode web-mode "TypeScript-tsx")
+	  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode)))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+
+#+end_src
+
+*** Web
+#+begin_src emacs-lisp
+
+(use-package web-mode
+  :mode "(\\.\\(html?\\|ejs\\|tsx\\|jsx\\)\\'"
+  :config
+  (setq-default web-mode-code-indent-offset 2)
+  (setq-default web-mode-markup-indent-offset 2)
+  (setq-default web-mode-attribute-indent-offset 2))
 
 #+end_src
 
