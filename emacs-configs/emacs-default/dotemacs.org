@@ -180,6 +180,20 @@ Scrolling
 
 #+end_src
 
+Control Buffer Placement
+Emacs' default buffer placement algorithm is pretty disruptive if you like setting up window layouts a certain way in your workflow. The display-buffer-alist video controls this behavior and you can customize it to prevent Emacs from popping up new windows when you run commands. 
+#+begin_src emacs-lisp
+
+(setq display-buffer-base-action
+	  '(display-buffer-reuse-mode-window
+		display-buffer-reuse-window
+		display-buffer-same-window))
+
+;; If a popup does happen, don't resize windows to be equal-sized
+(setq even-window-sizes nil)
+
+#+end_src
+
 Add fringe to buffer
 #+BEGIN_SRC emacs-lisp
 
@@ -246,6 +260,43 @@ Functions to open various important files
   "Load the literate config file for Emacs"
   (interactive)
   (find-file "~/emacs-configs/emacs-default/dotemacs.org"))
+
+#+end_src
+
+*** Secrets
+#+begin_src emacs-lisp
+
+(defun vt/load-secret (&optional name)
+  "Read a Lisp structure from the secret file.
+When NAME is provided, return the value associated to this key."
+  (let ((file (expand-file-name ".secrets.eld")))
+	(when (file-exists-p file)
+	  (with-demoted-errors "Error while parsing secret file: %S"
+		(with-temp-buffer
+		  (insert-file-contents file)
+		  (if-let ((content (read (buffer-string)))
+				   (name))
+			  (alist-get name content)
+			content))))))
+
+#+end_src
+
+*** Icons
+Variant functions to add icons.
+
+#+begin_src emacs-lisp
+
+(defun with-faicon (icon str &optional height v-adjust)
+  (s-concat (all-the-icons-faicon icon :v-adjust (or v-adjust 0) :height (or height 1)) " " str))
+
+(defun with-fileicon (icon str &optional height v-adjust)
+  (s-concat (all-the-icons-fileicon icon :v-adjust (or v-adjust 0) :height (or height 1)) " " str))
+
+(defun with-octicon (icon str &optional height v-adjust)
+  (s-concat (all-the-icons-octicon icon :v-adjust (or v-adjust 0) :height (or height 1)) " " str))
+
+(defun with-material (icon str &optional height v-adjust)
+  (s-concat (all-the-icons-material icon :v-adjust (or v-adjust 0) :height (or height 1)) " " str))
 
 #+end_src
 
@@ -452,7 +503,6 @@ This package provides a sort of right-click contextual menu for Emacs, accessed 
   (setq prefix-help-command #'embark-prefix-help-command))
 
 (use-package embark-consult
-  :ensure t
   :after (embark consult)
   :demand t
   :hook
@@ -476,7 +526,7 @@ This package provides a sort of right-click contextual menu for Emacs, accessed 
 #+end_src
 
 ** Doom modeline
-[[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs.  The default configuration is quite good but you can check out the [[https://github.com/seagle0128/doom-modeline#customize][configuration options]] for more things you can enable or disable.
+[[https://github.com/seagle0128/doom-modeline][doom-modeline]] is a very attractive and rich (yet still minimal) mode line configuration for Emacs. The default configuration is quite good but you can check out the [[https://github.com/seagle0128/doom-modeline#customize][configuration options]] for more things you can enable or disable.
 
 *NOTE:* The first time you load your configuration on a new machine, you'll need to run `M-x all-the-icons-install-fonts` so that mode line icons display correctly.
 #+BEGIN_SRC emacs-lisp
@@ -1065,6 +1115,44 @@ An extensible emacs startup screen showing you what’s most important.
   (dashboard-setup-startup-hook))
 
 ;; (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+
+#+end_src
+
+** Spotify
+Control [[https://github.com/danielfm/smudge][Spotify]] clients from within Emacs.
+
+#+begin_src emacs-lisp
+
+(use-package smudge
+  :commands smudge-controller-toggle-play
+  :custom
+  (smudge-oauth2-client-id (vt/load-secret 'spotify-id))
+  (smudge-oauth2-client-secret (vt/load-secret 'spotify-secret)))
+
+(pretty-hydra-define vt/hydra-spotify
+  (:title (with-faicon "spotify" "Spotify" 1 -0.05))
+  ("Search"
+   (("t" smudge-track-search "Track" :exit t)
+	("m" smudge-my-playlists "My Playlists" :exit t)
+	("f" smudge-featured-playlists "Featured Playlists" :exit t)
+	("u" smudge-user-playlists "User Playlists" :exit t))
+   "Control"
+   (
+	("SPC" smudge-controller-toggle-play "Play/Pause" :exit nil)
+	("n" smudge-controller-next-track "Next Track" :exit nil)
+	("p" smudge-controller-previous-track "Previous Track" :exit nil)
+	("r" smudge-controller-toggle-repeat "Repeat" :exit nil)
+	("s" smudge-controller-toggle-shuffle "Shuffle" :exit nil))
+   "Manage"
+   (
+	("+" smudge-controller-volume-up "Volume up" :exit nil)
+	("-" smudge-controller-volume-down "Volume down" :exit nil)
+	("x" smudge-controller-volume-mute-unmute "Mute" :exit nil)
+	("d" smudge-select-device "Select Device" :exit nil)
+	("f" nil "quit" :exit t))))
+
+(vt/leader-keys
+  "m" '(vt/hydra-spotify/body :which-key "spotify"))
 
 #+end_src
 
