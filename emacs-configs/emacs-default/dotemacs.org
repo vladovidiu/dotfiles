@@ -1148,9 +1148,11 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 #+begin_src emacs-lisp
 
 (use-package corfu
-  :bind (:map corfu-map
-			  ("TAB" . corfu-next)
-			  ("S-TAB" . corfu-previous))
+  :straight '(corfu :host github
+					:repo "minad/corfu"
+					:branch "main")
+  :custom
+  (corfu-cycle t)
   :config
   (corfu-global-mode))
 
@@ -1274,6 +1276,16 @@ Inspired from Doom Emacs
 
 #+end_src
 
+*** JSON
+Major mode for editing [[https://github.com/joshwnj/json-mode][JSON]] files.
+
+#+begin_src emacs-lisp
+
+(use-package json-mode
+  :straight t)
+
+#+end_src
+
 * Runtime performance
 Dial the GC threshold back down so that garbage collection happens more frequently but in less time.
 
@@ -1283,4 +1295,3 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 (setq gc-cons-threshold (* 2 1000 1000))
 
 #+end_src
-
