@@ -146,6 +146,18 @@ Add parts of each file's directory to the buffer if not unique
 
 #+end_src
 
+Pinentry
+Emacs can be prompted for the PIN of GPG private keys, we just need to set epa-pinentry-mode to accomplish that
+#+begin_src emacs-lisp
+
+(use-package pinentry
+  :init
+  (pinentry-start)
+  :config
+  (setq epa-pinentry-mode 'loopback))
+
+#+end_src
+
 Save a list of recent files visited
 #+begin_src emacs-lisp
 (recentf-mode 1)
@@ -678,7 +690,7 @@ Emacs' built in commenting functionality =comment-dwim= (usually bound to =M-;=)
 
 (vt/leader-keys
   "g" '(:ignore t :which-key "magit")
-  "gs" '(magit-status :which-key "magit status")
+  "gg" '(magit-status :which-key "magit status")
   "gb" '(magit-blame :which-key "magit blame"))
 
 #+END_SRC
