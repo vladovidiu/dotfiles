@@ -231,6 +231,11 @@ Emacs' default buffer placement algorithm is pretty disruptive if you like setti
 		 (window-width . 0.4)			; See the :hook
 		 (side . right)
 		 (slot . 0))
+		("\\*WoMan.*"
+		 (display-buffer-in-side-window)
+		 (window-width . 0.4)			; See the :hook
+		 (side . right)
+		 (slot . 1))
 		;; bottom buffer (NOT side window)
 		("\\*\\(Output\\|Register Preview\\).*"
 		 (display-buffer-at-bottom))
