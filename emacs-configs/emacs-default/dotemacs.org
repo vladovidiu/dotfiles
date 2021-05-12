@@ -204,6 +204,44 @@ Emacs' default buffer placement algorithm is pretty disruptive if you like setti
 ;; If a popup does happen, don't resize windows to be equal-sized
 (setq even-window-sizes nil)
 
+(setq org-src-window-setup 'split-window-right)
+(setq display-buffer-alist
+	  `(;; top side window
+		("\\*Messages.*"
+		 (display-buffer-in-side-window)
+		 (window-height . 0.16)
+		 (side . top)
+		 (slot . 1))
+		("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\)\\*"
+		 (display-buffer-in-side-window)
+		 (window-height . 0.16)
+		 (side . top)
+		 (slot . 2)
+		 (window-parameters . ((no-other-window . t))))
+		;; bottom side window
+		("\\*\\(Embark\\)?.*Completions.*"
+		 (display-buffer-in-side-window)
+		 (side . bottom)
+		 (slot . 0)
+		 (window-parameters . ((no-other-window . t)
+							   (mode-line-format . none))))
+		;; right side window
+		("\\*Help.*"
+		 (display-buffer-in-side-window)
+		 (window-width . 0.4)			; See the :hook
+		 (side . right)
+		 (slot . 0))
+		;; bottom buffer (NOT side window)
+		("\\*\\(Output\\|Register Preview\\).*"
+		 (display-buffer-at-bottom))
+		("\\*.*\\(e?shell\\|v?term\\).*"
+		 (display-buffer-reuse-mode-window display-buffer-at-bottom)
+		 (window-height . 0.2))
+		;; below current window
+		("\\*Calendar.*"
+		 (display-buffer-reuse-mode-window display-buffer-below-selected)
+		 (window-height . shrink-window-if-larger-than-buffer))))
+
 #+end_src
 
 Add fringe to buffer
