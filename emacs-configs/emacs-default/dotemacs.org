@@ -213,7 +213,7 @@ Add fringe to buffer
 
 #+END_SRC
 
-Font - PragmataPro
+Font - PragmataPro / Iosevka Aile
 #+BEGIN_SRC emacs-lisp
 
 (set-face-attribute 'default nil :font "PragmataPro Mono Liga" :height vt/default-font-size)
