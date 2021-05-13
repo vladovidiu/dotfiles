@@ -165,6 +165,14 @@ Save a list of recent files visited
 (setq recentf-max-saved-items 100)
 #+end_src
 
+Open elfeed links in EWW
+#+begin_src emacs-lisp
+
+(setq browse-url-browser-function 'eww-browse-url)
+(setq eww-search-prefix "https://duckduckgo.com/html?q=")
+
+#+end_src
+
 ** UI
 This section configures basic UI settings that remove unneeded elements to make Emacs look a lot more minimal and modern.  If you're just getting started in Emacs, the menu bar might be helpful so you can remove the =(menu-bar-mode -1)= line if you'd like to still see that.
 #+begin_src emacs-lisp
@@ -212,7 +220,7 @@ Emacs' default buffer placement algorithm is pretty disruptive if you like setti
 		 (window-height . 0.16)
 		 (side . top)
 		 (slot . 1))
-		("\\*\\(Backtrace\\|Warnings\\|Compile-Log\\)\\*"
+		("\\*\\(Backtrace\\|Warnings\\|Flycheck errors\\|Compile-Log\\)\\*"
 		 (display-buffer-in-side-window)
 		 (window-height . 0.16)
 		 (side . top)
@@ -236,6 +244,11 @@ Emacs' default buffer placement algorithm is pretty disruptive if you like setti
 		 (window-width . 0.4)			; See the :hook
 		 (side . right)
 		 (slot . 1))
+		("\\*Apropos\\*"
+		 (display-buffer-in-side-window)
+		 (window-width . 0.4)			; See the :hook
+		 (side . right)
+		 (slot . 2))
 		;; bottom buffer (NOT side window)
 		("\\*\\(Output\\|Register Preview\\).*"
 		 (display-buffer-at-bottom))
@@ -1115,17 +1128,14 @@ An RSS newsfeed reader for Emacs.
   :after evil
   :commands elfeed
   :config
-  (setq elfeed-search-feed-face ":foreground #fff :weight bold")
-  (setq elfeed-feeds
-    '(("https://nullprogram.com/feed/" blog)
-      ("https://ambrevar.xyz/atom.xml" blog)
-      ("https://guix.gnu.org/feeds/blog.atom" os linux)
-      ("https://www.reddit.com/r/emacs.rss" reddit emacs)
-      ("https://www.reddit.com/r/vim.rss" reddit vim)
-      ("https://www.reddit.com/r/neovim.rss" reddit vim)
-      ("https://www.reddit.com/r/linux.rss" reddit linux)
-      ("https://hnrss.org/frontpage" hackernews)
-      ("https://www.reddit.com/r/commandline.rss" reddit cmd))))
+  (setq elfeed-search-feed-face ":foreground #ff0000 :weight bold")
+  (setq-default elfeed-search-filter "@1-week-ago +unread "))
+
+(use-package elfeed-org
+  :after elfeed
+  :config (setq rmh-elfeed-org-files (list "~/emacs-configs/emacs-default/elfeed.org"))
+  :init
+  (elfeed-org))
 
 (use-package elfeed-goodies
   :after elfeed

@@ -1,0 +1,29 @@
+#+TITLE: Vlad rss feeds
+
+* Feeds :elfeed:
+** Reddit                                                           :reddit:
+*** Emacs                                                           :emacs:
+**** [[https://www.reddit.com/r/emacs.rss][Emacs]]
+**** [[https://www.reddit.com/r/orgmode.rss][Org Mode]]
+**** [[https://www.reddit.com/r/planetemacs.rss][Planet Emacs]]
+*** Vim                                                               :vim:
+**** [[https://www.reddit.com/r/vim.rss][Vim]]
+**** [[https://www.reddit.com/r/neovim.rss][neovim]]
+*** Linux                                                           :linux:
+**** [[https://www.reddit.com/r/linux.rss][Linux]]
+**** [[https://www.reddit.com/r/archlinux.rss][Arch Linux]]
+*** Command Line                                              :commandline:
+**** [[https://www.reddit.com/r/commandline.rss][Command Line]]
+** Blogs                                                              :blog:
+*** [[https://irreal.org/blog/?feed=rss2][irreal]]
+*** [[https://nullprogram.com/feed/][Null Program]]
+*** [[https://ambrevar.xyz/atom.xml][Ambrevar]]
+*** [[https://chaoticlab.io/feed.xml][Chaotic Lab]]
+** Operating Systems                                                    :os:
+*** [[https://guix.gnu.org/feeds/blog.atom][Guix]]
+** Programming Languages                                       :programming:
+** Tech News                                                          :tech:
+*** [[https://hnrss.org/frontpage][Hacker News]]
+*** [[https://dev.to/feed/][dev.to]]
+** Misc                                                               :misc:
+*** [[https://planet.emacslife.com/atom.xml][Planet Emacs]]
