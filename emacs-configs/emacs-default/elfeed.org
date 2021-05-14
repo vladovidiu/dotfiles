@@ -14,16 +14,28 @@
 **** [[https://www.reddit.com/r/archlinux.rss][Arch Linux]]
 *** Command Line                                              :commandline:
 **** [[https://www.reddit.com/r/commandline.rss][Command Line]]
+*** Programming
+**** [[https://www.reddit.com/r/programming.rss][Programming]]
+**** [[https://www.reddit.com/r/coding.rss][Coding]]
+**** [[https://www.reddit.com/r/javascript.rss][JavaScript]]
+**** [[https://www.reddit.com/r/golang.rss][golang]]
 ** Blogs                                                              :blog:
 *** [[https://irreal.org/blog/?feed=rss2][irreal]]
 *** [[https://nullprogram.com/feed/][Null Program]]
 *** [[https://ambrevar.xyz/atom.xml][Ambrevar]]
 *** [[https://chaoticlab.io/feed.xml][Chaotic Lab]]
+*** [[http://sachachua.com/blog/feed][Sacha Chua]]
+*** [[https://protesilaos.com/master.xml][Prot]]
 ** Operating Systems                                                    :os:
 *** [[https://guix.gnu.org/feeds/blog.atom][Guix]]
 ** Programming Languages                                       :programming:
 ** Tech News                                                          :tech:
 *** [[https://hnrss.org/frontpage][Hacker News]]
 *** [[https://dev.to/feed/][dev.to]]
+** Youtube                                                         :youtube:
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ][System Crafters]]
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCm22FAXZMw1BaWeFszZxUKw][Kitboga]]
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCVls1GmFKf6WlTraIb_IaJg][DistroTube]]
+*** [[https://www.youtube.com/feeds/videos.xml?channel_id=UC8ENHE5xdFSwx71u3fDH5Xw][ThePrimeagen]]
 ** Misc                                                               :misc:
 *** [[https://planet.emacslife.com/atom.xml][Planet Emacs]]

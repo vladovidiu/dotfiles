@@ -165,14 +165,6 @@ Save a list of recent files visited
 (setq recentf-max-saved-items 100)
 #+end_src
 
-Open elfeed links in EWW
-#+begin_src emacs-lisp
-
-(setq browse-url-browser-function 'eww-browse-url)
-(setq eww-search-prefix "https://duckduckgo.com/html?q=")
-
-#+end_src
-
 ** UI
 This section configures basic UI settings that remove unneeded elements to make Emacs look a lot more minimal and modern.  If you're just getting started in Emacs, the menu bar might be helpful so you can remove the =(menu-bar-mode -1)= line if you'd like to still see that.
 #+begin_src emacs-lisp
@@ -291,7 +283,7 @@ Theme
 
 (use-package doom-themes
   ;; :init (load-theme 'doom-palenight t)
-  :init (load-theme 'modus-vivendi t)
+  :init (load-theme 'modus-operandi t)
   (doom-themes-visual-bell-config))
 
 #+END_SRC
@@ -374,6 +366,34 @@ Variant functions to add icons.
 (defun vt/start-github-review ()
   (interactive)
   (github-review-forge-pr-at-point))
+
+#+end_src
+
+*** Play with mpv
+#+begin_src emacs-lisp
+
+(defun vt/elfeed-play-with-mpv ()
+  "Play entry link with mpv."
+  (interactive)
+  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single)))
+        (quality-arg "")
+        (quality-val (completing-read "Max height resolution (0 for unlimited): " '("0" "480" "720") nil nil)))
+    (setq quality-val (string-to-number quality-val))
+    (message "Opening %s with height≤%s with mpv..." (elfeed-entry-link entry) quality-val)
+    (when (< 0 quality-val)
+      (setq quality-arg (format "--ytdl-format=[height<=?%s]" quality-val)))
+    (start-process "elfeed-mpv" nil "mpv" quality-arg (elfeed-entry-link entry))))
+#+end_src
+
+*** EWW
+#+begin_src emacs-lisp
+
+(defun vt/eww-rename-buffer ()
+  "Rename EWW buffer using page title or URL."
+  (let ((name (if (eq "" (plist-get eww-data :title))
+				  (plist-get eww-data :url)
+				(plist-get eww-data :title))))
+	(rename-buffer (format "*%s # eww*" name) t)))
 
 #+end_src
 
@@ -1127,9 +1147,12 @@ An RSS newsfeed reader for Emacs.
 (use-package elfeed
   :after evil
   :commands elfeed
+  :bind (
+		 :map elfeed-search-mode-map
+			  ("C-w y" . vt/elfeed-play-with-mpv))
   :config
   (setq elfeed-search-feed-face ":foreground #ff0000 :weight bold")
-  (setq-default elfeed-search-filter "@1-week-ago +unread "))
+  (setq-default elfeed-search-filter "@4-month-ago +unread "))
 
 (use-package elfeed-org
   :after elfeed
@@ -1248,6 +1271,27 @@ Control [[https://github.com/danielfm/smudge][Spotify]] clients from within Emac
 
 #+end_src
 
+** EWW
+Eww (the Eacs Web Wowser) is a Web browser written in elisp and based on shr.el.
+
+#+begin_src emacs-lisp
+
+(setq shr-use-fonts nil
+	  shr-cookie-policy nil
+	  shr-discard-aria-hidden t
+	  shr-image-animate nil)
+
+(use-package eww
+  :config
+  (setq browse-url-browser-function 'eww-browse-url
+		eww-search-prefix "https://duckduckgo.com/html?q="))
+
+(add-hook 'eww-after-render-hook #'vt/eww-rename-buffer)
+(advice-add 'eww-back-url :after #'vt/eww-rename-buffer)
+(advice-add 'eww-forward-url :after #'vt/eww-rename-buffer)
+
+#+end_src
+
 * Utilities
 Setup org babel
 
@@ -1331,6 +1375,9 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   :straight '(corfu :host github
 					:repo "minad/corfu"
 					:branch "main")
+  :bind (:map corfu-map
+			  ("TAB" . corfu-next)
+			  ("S-TAB" . corfu-previous))
   :custom
   (corfu-cycle t)
   :config
