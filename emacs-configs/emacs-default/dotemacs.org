@@ -37,7 +37,7 @@ Packages' documentation can be accessed by using =C-c C-o= or running =M-x org-o
 #+begin_src emacs-lisp
 
 ;; Silence compiler warnings as they can be pretty disruptive
-(setq comp-async-report-warnings-errors nil)
+(setq native-comp-async-report-warnings-errors nil)
 
 #+end_src
 
@@ -46,6 +46,7 @@ straight.el: next-generation, purely functional package manager for the Emacs ha
 
 #+begin_src emacs-lisp
 
+(setq straight-repository-branch "develop")
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -976,6 +977,7 @@ This package makes it much easier to edit Org documents when org-hide-emphasis-m
 #+begin_src emacs-lisp
 
 (use-package org-appear
+  :straight t
   :hook (org-mode . org-appear-mode))
 
 #+end_src
@@ -1135,8 +1137,10 @@ For more thoughts on Eshell, check out these articles by Pierre Neidhardt:
 ** Emoji
 Emojify is an Emacs extension to display emojis. It can display github style emojis like :smile: or plain ascii ones like :). It tries to be as efficient as possible, while also providing a lot of flexibility.
 #+begin_src emacs-lisp
+
 (use-package emojify
   :hook (after-init . global-emojify-mode))
+
 #+end_src
 
 ** Elfeed
@@ -1377,9 +1381,13 @@ The =which-key= integration adds helpful descriptions of the various keys so you
 					:branch "main")
   :bind (:map corfu-map
 			  ("TAB" . corfu-next)
-			  ("S-TAB" . corfu-previous))
+			  ("<backtab>" . corfu-previous))
   :custom
   (corfu-cycle t)
+  :hook ((prog-mode . corfu-mode)
+		 (shell-mode . corfu-mode)
+		 (org-mode . corfu-mode)
+		 (eshell-mode . corfu-mode))
   :config
   (corfu-global-mode))
 
@@ -1484,9 +1492,9 @@ Inspired from Doom Emacs
 *** Typescript-tsx
 #+begin_src emacs-lisp
 
-    (progn
-	  (define-derived-mode typescript-tsx-mode web-mode "TypeScript-tsx")
-	  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode)))
+(progn
+  (define-derived-mode typescript-tsx-mode web-mode "TypeScript-tsx")
+  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-tsx-mode)))
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
 
 #+end_src
