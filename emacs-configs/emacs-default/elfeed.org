@@ -26,6 +26,7 @@
 *** [[https://chaoticlab.io/feed.xml][Chaotic Lab]]
 *** [[http://sachachua.com/blog/feed][Sacha Chua]]
 *** [[https://protesilaos.com/master.xml][Prot]]
+*** [[https://github.crookster.org/feed.xml][Crookster]]
 ** Operating Systems                                                    :os:
 *** [[https://guix.gnu.org/feeds/blog.atom][Guix]]
 ** Programming Languages                                       :programming:
