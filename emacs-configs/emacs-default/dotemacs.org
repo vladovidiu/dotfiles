@@ -181,14 +181,6 @@ Control Buffer Placement
 Emacs' default buffer placement algorithm is pretty disruptive if you like setting up window layouts a certain way in your workflow. The display-buffer-alist video controls this behavior and you can customize it to prevent Emacs from popping up new windows when you run commands. 
 #+begin_src emacs-lisp
 
-(setq display-buffer-base-action
-	  '(display-buffer-reuse-mode-window
-		display-buffer-reuse-window
-		display-buffer-same-window))
-
-;; If a popup does happen, don't resize windows to be equal-sized
-(setq even-window-sizes nil)
-
 (setq org-src-window-setup 'split-window-right)
 (setq display-buffer-alist
 	  `(;; top side window
@@ -267,9 +259,9 @@ Theme
 #+BEGIN_SRC emacs-lisp
 
 (use-package doom-themes
-  ;; :init (load-theme 'doom-palenight t)
+  :init (load-theme 'doom-palenight t)
   ;; :init (load-theme 'modus-operandi t)
-  :init (load-theme 'modus-vivendi t)
+  ;; :init (load-theme 'modus-vivendi t)
   (doom-themes-visual-bell-config))
 
 #+END_SRC
