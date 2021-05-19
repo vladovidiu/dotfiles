@@ -259,9 +259,9 @@ Theme
 #+BEGIN_SRC emacs-lisp
 
 (use-package doom-themes
-  :init (load-theme 'doom-palenight t)
+  ;; :init (load-theme 'doom-palenight t)
   ;; :init (load-theme 'modus-operandi t)
-  ;; :init (load-theme 'modus-vivendi t)
+  :init (load-theme 'modus-vivendi t)
   (doom-themes-visual-bell-config))
 
 #+END_SRC
@@ -1404,6 +1404,17 @@ Syntax checking with Flycheck
  
 #+end_src
 
+*** Editorconfig
+[[https://github.com/editorconfig/editorconfig-emacs][Editorconfig]]
+#+begin_src emacs-lisp
+
+(use-package editorconfig
+  :straight t
+  :config
+  (editorconfig-mode 1))
+
+#+end_src
+
 ** Languages
 *** TypeScript
 This is a basic configuration for the TypeScript language so that =.ts or .tsx= files activate =typescript-mode= when opened. We're also adding a hook to =typescript-mode-hook= to call =lsp-deferred= so that we activate =lsp-mode= to get LSP features every time we edit TypeScript code.
@@ -1494,7 +1505,10 @@ Major mode for editing [[https://github.com/joshwnj/json-mode][JSON]] files.
 #+begin_src emacs-lisp
 
 (use-package json-mode
-  :straight t)
+  :straight t
+  :config
+  (setq json-reformat:indent-width 2))
+
 
 #+end_src
 
@@ -1507,3 +1521,4 @@ Dial the GC threshold back down so that garbage collection happens more frequent
 (setq gc-cons-threshold (* 2 1000 1000))
 
 #+end_src
+
