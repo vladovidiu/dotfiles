@@ -27,12 +27,14 @@
 *** [[http://sachachua.com/blog/feed][Sacha Chua]]
 *** [[https://protesilaos.com/master.xml][Prot]]
 *** [[https://github.crookster.org/feed.xml][Crookster]]
+*** [[https://ag91.github.io/rss.xml][Andrea Corallo]]
 ** Operating Systems                                                    :os:
 *** [[https://guix.gnu.org/feeds/blog.atom][Guix]]
 ** Programming Languages                                       :programming:
 ** Tech News                                                          :tech:
 *** [[https://hnrss.org/frontpage][Hacker News]]
 *** [[https://dev.to/feed/][dev.to]]
+*** [[https://suckless.org/atom.xml][Suckless]]
 ** Youtube                                                         :youtube:
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ][System Crafters]]
 *** [[https://www.youtube.com/feeds/videos.xml?channel_id=UCm22FAXZMw1BaWeFszZxUKw][Kitboga]]

@@ -37,6 +37,9 @@ Packages' documentation can be accessed by using =C-c C-o= or running =M-x org-o
 * Native compilation
 #+begin_src emacs-lisp
 
+;; Set the correct eln-cache
+(add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory))
+
 ;; Silence compiler warnings as they can be pretty disruptive
 (setq native-comp-async-report-warnings-errors nil)
 
@@ -264,6 +267,11 @@ Theme
   :init (load-theme 'modus-vivendi t)
   (doom-themes-visual-bell-config))
 
+(use-package humanoid-themes)
+
+(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 #+END_SRC
 
 ** Custom functions
@@ -280,12 +288,12 @@ Functions to toggle various settings
   (setq display-line-numbers
 		(not (bound-and-true-p display-line-numbers))))
 
-(defun vt/toggle-company-mode ()
-  "Toggle company mode in buffer"
+(defun vt/toggle-corfu-mode ()
+  "Toggle corfu mode in buffer"
   (interactive)
-  (if (bound-and-true-p company-mode)
-	  (company-mode -1)
-	(company-mode 1)))
+  (if (bound-and-true-p corfu-mode)
+	  (corfu-mode -1)
+	(corfu-mode 1)))
 
 #+end_src
 
@@ -316,6 +324,16 @@ When NAME is provided, return the value associated to this key."
 				   (name))
 			  (alist-get name content)
 			content))))))
+
+(defun vt/fetch-password (&rest params)
+  (require 'auth-source)
+  (let ((match (car (apply 'auth-source-search params))))
+	(if match
+		(let ((secret (plist-get match :secret)))
+		  (if (functionp secret)
+			  (funcall secret)
+			secret))
+	  (error "Password not found for %S" params))))
 
 #+end_src
 
@@ -361,6 +379,7 @@ Variant functions to add icons.
     (when (< 0 quality-val)
       (setq quality-arg (format "--ytdl-format=[height<=?%s]" quality-val)))
     (start-process "elfeed-mpv" nil "mpv" quality-arg (elfeed-entry-link entry))))
+
 #+end_src
 
 *** EWW
@@ -400,7 +419,7 @@ General
    "cc" '(vt/open-config-file :which-key "open config")
    "t" '(:ignore t :which-key "toggles")
    "tl" '(vt/toggle-line-numbers :which-key "line numbers")
-   "tc" '(vt/toggle-company-mode :which-key "company mode")
+   "tc" '(vt/toggle-corfu-mode :which-key "corfu mode")
    "tt" '(consult-theme :which-key "choose theme")))
 
 #+END_SRC
@@ -659,6 +678,7 @@ This package provides a sort of right-click contextual menu for Emacs, accessed 
 (use-package evil-escape
   :after evil
   :config
+  (setq evil-escape-excluded-states '(normal visual multiedit emacs motion))
   (setq-default evil-escape-key-sequence "jk"
                 evil-escape-delay 0.15)
   (evil-escape-mode))
@@ -954,7 +974,6 @@ This package makes it much easier to edit Org documents when org-hide-emphasis-m
 #+begin_src emacs-lisp
 
 (use-package org-appear
-  :disabled t
   :hook (org-mode . org-appear-mode))
 
 #+end_src
@@ -1133,7 +1152,7 @@ An RSS newsfeed reader for Emacs.
 			  ("C-w y" . vt/elfeed-play-with-mpv))
   :config
   (setq elfeed-search-feed-face ":foreground #ff0000 :weight bold")
-  (setq-default elfeed-search-filter "@4-month-ago +unread "))
+  (setq-default elfeed-search-filter "@1-week-ago +unread "))
 
 (use-package elfeed-org
   :after elfeed
@@ -1273,27 +1292,59 @@ Eww (the Eacs Web Wowser) is a Web browser written in elisp and based on shr.el.
 
 #+end_src
 
+** Sly
+#+begin_src emacs-lisp
+
+(use-package sly
+  :straight t
+  :config
+  (setq org-babel-lisp-eval-fn #'sly-eval)
+  (setq inferior-lisp-program "/usr/bin/clisp"))
+
+#+end_src
+
+** Circe
+[[https://github.com/jorgenschaefer/circe][Circe]] is a Client for IRC in Emacs. It tries to have sane defaults, and integrates well with the rest of the editor, using standard Emacs key bindings and indicating activity in channels in the status bar so it stays out of your way unless you want to use it.
+
+#+begin_src emacs-lisp
+
+(defun vt/circe-nickserv-password (server)
+  (vt/fetch-password :login "nerevarine" :machine "irc.libera.chat"))
+
+(use-package circe
+  :config
+  (setq circe-network-options
+		'(("Libera Chat"
+		   :tls t
+		   :nick "nerevarine"
+		   :nickserv-password vt/circe-nickserv-password
+		   :channels (:after-auth "#emacs")))))
+
+#+end_src
+
 * Utilities
 Setup org babel
 
 #+BEGIN_SRC emacs-lisp
 
 (with-eval-after-load 'org
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (python . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+	 (lisp . t)
+	 (python . t)))
 
-    (setq org-confirm-babel-evaluate nil)
-    (push '("conf-unix" . conf-unix) org-src-lang-modes))
+  (setq org-confirm-babel-evaluate nil)
+  (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
 (with-eval-after-load 'org
-    (require 'org-tempo)
+  (require 'org-tempo)
 
-    (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-    (add-to-list 'org-structure-template-alist '("py" . "src python"))
-    (add-to-list 'org-structure-template-alist '("js" . "src javascript")))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python"))
+  (add-to-list 'org-structure-template-alist '("js" . "src javascript"))
+  (add-to-list 'org-structure-template-alist '("lp" . "src lisp")))
 
 #+END_SRC
 
@@ -1364,6 +1415,7 @@ The =which-key= integration adds helpful descriptions of the various keys so you
   :hook ((prog-mode . corfu-mode)
 		 (shell-mode . corfu-mode)
 		 (org-mode . corfu-mode)
+		 (sly-mode . corfu-mode)
 		 (eshell-mode . corfu-mode))
   :config
   (corfu-global-mode))
