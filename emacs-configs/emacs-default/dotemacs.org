@@ -244,9 +244,18 @@ Add fringe to buffer
 Font - PragmataPro / Iosevka Aile
 #+BEGIN_SRC emacs-lisp
 
-(set-face-attribute 'default nil :font "PragmataPro Mono Liga" :height vt/default-font-size)
-(set-face-attribute 'fixed-pitch nil :font "PragmataPro Mono Liga" :height vt/default-font-size)
-(set-face-attribute 'variable-pitch nil :font "Iosevka Aile" :height vt/default-variable-font-size :weight 'regular)
+(defun vt/set-font-faces ()
+  (set-face-attribute 'default nil :font "PragmataPro Mono Liga" :height vt/default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font "PragmataPro Mono Liga" :height vt/default-font-size)
+  (set-face-attribute 'variable-pitch nil :font "Iosevka Aile" :height vt/default-variable-font-size :weight 'regular))
+
+(if (daemonp)
+	(add-hook 'after-make-frame-functions
+			  (lambda (frame)
+				(setq doom-modeline-icon t)
+				(with-selected-frame frame
+				  (vt/set-font-faces))))
+  (vt/set-font-faces))
 
 #+END_SRC
 
@@ -1312,13 +1321,21 @@ Eww (the Eacs Web Wowser) is a Web browser written in elisp and based on shr.el.
   (vt/fetch-password :login "nerevarine" :machine "irc.libera.chat"))
 
 (use-package circe
+  :init
+  (enable-circe-color-nicks)
   :config
-  (setq circe-network-options
+  (setq circe-default-nick (vt/load-secret 'circe-nick)
+		circe-default-realname (vt/load-secret 'circe-nick)
+		circe-reduce-lurker-spam t
+		circe-network-options
 		'(("Libera Chat"
 		   :tls t
-		   :nick "nerevarine"
-		   :nickserv-password vt/circe-nickserv-password
-		   :channels (:after-auth "#emacs")))))
+		   :nickserv-password (vt/load-secret 'circe-pass)
+		   :nickserv-identify-challenge (format "\C-b/msg\\s-NickServ\\s-identify\\s-<%S>\C-b" (vt/load-secret 'circe-pass))
+		   :nickserv-identify-command (format "PRIVMSG NickServ :IDENTIFY {%s} {%s}" (vt/load-secret 'circe-nick) (vt/load-secret 'circe-pass))
+		   :nickserv-identify-confirmation "^You are now identified for .*\\.$"
+		   :channels (:after-auth "#emacs"))
+		  )))
 
 #+end_src
 
