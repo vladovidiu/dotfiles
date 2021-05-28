@@ -1323,7 +1323,7 @@ Eww (the Eacs Web Wowser) is a Web browser written in elisp and based on shr.el.
 (use-package circe
   :init
   (enable-circe-color-nicks)
-  :config
+  :custom
   (setq circe-default-nick (vt/load-secret 'circe-nick)
 		circe-default-realname (vt/load-secret 'circe-nick)
 		circe-reduce-lurker-spam t
