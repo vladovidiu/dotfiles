@@ -173,6 +173,13 @@ Line numbers width
 
 #+end_src
 
+Display time
+#+begin_src emacs-lisp
+
+(display-time-mode 1)
+
+#+end_src
+
 Scrolling
 #+begin_src emacs-lisp
 
@@ -271,9 +278,9 @@ Theme
 #+BEGIN_SRC emacs-lisp
 
 (use-package doom-themes
-  ;; :init (load-theme 'doom-palenight t)
+  :init (load-theme 'doom-gruvbox t)
   ;; :init (load-theme 'modus-operandi t)
-  :init (load-theme 'modus-vivendi t)
+  ;; :init (load-theme 'modus-vivendi t)
   (doom-themes-visual-bell-config))
 
 (use-package humanoid-themes)
