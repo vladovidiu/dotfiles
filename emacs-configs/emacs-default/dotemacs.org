@@ -5,6 +5,7 @@
 
 * Dotemacs
 Personal dotemacs configuration used mainly for programming and org mode.
+
 Font Global Variables:
 #+begin_src emacs-lisp
 
@@ -1266,7 +1267,8 @@ Control [[https://github.com/danielfm/smudge][Spotify]] clients from within Emac
    (("t" smudge-track-search "Track" :exit t)
 	("m" smudge-my-playlists "My Playlists" :exit t)
 	("f" smudge-featured-playlists "Featured Playlists" :exit t)
-	("u" smudge-user-playlists "User Playlists" :exit t))
+	("u" smudge-user-playlists "User Playlists" :exit t)
+	("l" smudge-playlist-search "Search Playlist" :exit t))
    "Control"
    (
 	("SPC" smudge-controller-toggle-play "Play/Pause" :exit nil)
@@ -1356,6 +1358,7 @@ Setup org babel
    'org-babel-load-languages
    '((emacs-lisp . t)
 	 (lisp . t)
+	 (js . t)
 	 (python . t)))
 
   (setq org-confirm-babel-evaluate nil)
@@ -1378,7 +1381,7 @@ Auto tangle  config file
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun vt/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/emacs-configs/emacs-default/dotemacs.org"))
+                      (expand-file-name "dotemacs.org" user-emacs-directory))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))

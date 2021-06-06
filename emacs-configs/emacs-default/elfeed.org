@@ -1,4 +1,5 @@
 #+TITLE: Vlad rss feeds
+#+STARTUP: show2levels
 
 * Feeds :elfeed:
 ** Reddit                                                           :reddit:
