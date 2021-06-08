@@ -399,6 +399,26 @@ Variant functions to add icons.
 
 #+end_src
 
+*** Open URL in mpv
+#+begin_src emacs-lisp
+
+(defun vt/open-with-mpv ()
+  "Get URL at point and open it in mpv."
+  (interactive)
+  (when (org-in-regexp org-bracket-link-regexp 1)
+	(let* ((url (org-link-unescape (org-match-string-no-properties 1)))
+		   (quality-arg "")
+		   (quality-val (completing-read "Max resolution (0 for unlimited): " '("0" "480" "720") nil nil)))
+	  (if (not url)
+		  (error "No url copied!")
+		(setq quality-val (string-to-number quality-val))
+		(message (concat "Opening: " url))
+		(when (< 0 quality-val)
+		  (setq quality-arg (format "--ytdl-format=[height<=?%s]" quality-val)))
+		(start-process "org-mpv" nil "mpv" quality-arg url)
+		(kill-new url)))))
+#+end_src
+
 *** EWW
 #+begin_src emacs-lisp
 
@@ -850,6 +870,7 @@ Org mode configuration
 (use-package org
   :commands (org-capture org-agenda)
   :hook (org-mode . vt/org-mode-setup)
+  :bind (("C-x y" . vt/open-with-mpv))
   :config
   (setq org-ellipsis " ▾"
         org-hide-emphasis-markers t)
@@ -1166,7 +1187,7 @@ An RSS newsfeed reader for Emacs.
   :commands elfeed
   :bind (
 		 :map elfeed-search-mode-map
-			  ("C-w y" . vt/elfeed-play-with-mpv))
+			  ("C-x y" . vt/elfeed-play-with-mpv))
   :config
   (setq elfeed-search-feed-face ":foreground #ff0000 :weight bold")
   (setq-default elfeed-search-filter "@1-week-ago +unread "))
