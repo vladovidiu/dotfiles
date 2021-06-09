@@ -415,8 +415,8 @@ Variant functions to add icons.
 		(message (concat "Opening: " url))
 		(when (< 0 quality-val)
 		  (setq quality-arg (format "--ytdl-format=[height<=?%s]" quality-val)))
-		(start-process "org-mpv" nil "mpv" quality-arg url)
-		(kill-new url)))))
+		(start-process "org-mpv" nil "mpv" quality-arg url)))))
+
 #+end_src
 
 *** EWW
@@ -1339,6 +1339,9 @@ Eww (the Eacs Web Wowser) is a Web browser written in elisp and based on shr.el.
   :config
   (setq org-babel-lisp-eval-fn #'sly-eval)
   (setq inferior-lisp-program "/usr/bin/clisp"))
+
+(use-package slime
+  :straight t)
 
 #+end_src
 
