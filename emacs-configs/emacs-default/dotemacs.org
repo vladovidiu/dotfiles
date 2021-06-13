@@ -12,6 +12,9 @@ Font Global Variables:
 (defvar vt/default-font-size 140)
 (defvar vt/default-variable-font-size 140)
 
+;; Make frame transparency overridable
+(defvar vt/frame-transparency '(90 . 90))
+
 #+end_src
 
 ** Tips
@@ -185,6 +188,15 @@ Scrolling
 #+begin_src emacs-lisp
 
 (setq scroll-conservatively 101)
+
+#+end_src
+
+Transparency
+#+begin_src emacs-lisp
+
+;; Set frame transparency
+(set-frame-parameter (selected-frame) 'alpha vt/frame-transparency)
+(add-to-list 'default-frame-alist `(alpha . ,vt/frame-transparency))
 
 #+end_src
 
