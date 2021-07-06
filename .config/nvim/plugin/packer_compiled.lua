@@ -82,9 +82,17 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/vladovidiu/.local/share/nvim/site/pack/packer/start/lush.nvim"
   },
+  ["null-ls.nvim"] = {
+    loaded = true,
+    path = "/home/vladovidiu/.local/share/nvim/site/pack/packer/start/null-ls.nvim"
+  },
   ["nvim-compe"] = {
     loaded = true,
     path = "/home/vladovidiu/.local/share/nvim/site/pack/packer/start/nvim-compe"
+  },
+  ["nvim-lsp-ts-utils"] = {
+    loaded = true,
+    path = "/home/vladovidiu/.local/share/nvim/site/pack/packer/start/nvim-lsp-ts-utils"
   },
   ["nvim-lspconfig"] = {
     loaded = true,

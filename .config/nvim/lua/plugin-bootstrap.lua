@@ -34,6 +34,11 @@ return require('packer').startup(function()
     requires = {{'nvim-lua/popup.nvim'}, {'nvim-lua/plenary.nvim'}}
   }
 
+  use {
+    'jose-elias-alvarez/nvim-lsp-ts-utils',
+    requires = {'jose-elias-alvarez/null-ls.nvim'}
+  }
+
   use {'onsails/lspkind-nvim'}
 
 end)
