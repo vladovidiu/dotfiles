@@ -1,21 +1,6 @@
 require('lsp.tsserver')
 require('lsp.sumneko_lua')
-
-require'lspconfig'.efm.setup {
-  init_options = {documentFormatting = true},
-  filetypes = {"lua"},
-  settings = {
-    rootMarkers = {'.git/'},
-    languages = {
-      lua = {
-        {
-          formatCommand = "lua-format -i --no-keep-simple-function-one-line --no-break-after-operator --indent-width=2 --column-limit=80 --break-after-table-lb",
-          formatStdin = true
-        }
-      }
-    }
-  }
-}
+require('lsp.efm')
 
 vim.fn.sign_define("LspDiagnosticsSignError",
                    {text = "", texthl = "GruvboxRed"})
